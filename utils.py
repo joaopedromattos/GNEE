@@ -10,7 +10,25 @@ def encode_onehot(labels):
     return labels_onehot
 
 
-def load_data(path="./data/cora/", dataset="cora"):
+def load_data(path="./pyGAT/data/cora/", dataset="cora"):
+    if (dataset == 'cora'):
+        adj, features, labels, train, val, test = spk.datasets.citation.load_data(dataset_name='cora', normalize_features=True, random_split=True)
+
+        # Converting one-hot encoding into categorical 
+        # values with the indexes of each dataset partition
+        idx_train, idx_val, idx_test = np.where(train)[0], np.where(val)[0], np.where(test)[0]
+
+
+        adj = torch.FloatTensor(adj.todense())
+        features = torch.FloatTensor(features.todense())
+        labels = torch.LongTensor(np.where(labels)[1])
+        idx_train = torch.LongTensor(idx_train)
+        idx_val = torch.LongTensor(idx_val)
+        idx_test = torch.LongTensor(idx_test)
+
+        return adj, features, labels, idx_train, idx_val, idx_test
+
+def load_data_original(path="./data/cora/", dataset="cora"):
     """Load citation network dataset (cora only for now)"""
     print('Loading {} dataset...'.format(dataset))
 
