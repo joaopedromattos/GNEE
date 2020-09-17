@@ -13,7 +13,7 @@ def encode_onehot(labels):
     return labels_onehot
 
 
-def new_load_data(dataset='pubmcoraed'):
+def new_load_data(dataset='cora'):
     print(f"[LOAD DATA]: {dataset}")
 
     adj, features, labels, train, val, test = spk.datasets.citation.load_data(
