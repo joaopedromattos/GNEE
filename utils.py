@@ -13,11 +13,18 @@ def encode_onehot(labels):
     return labels_onehot
 
 
-def new_load_data(dataset='cora'):
+def new_load_data(path="./pyGAT/data/cora/", dataset='cora'):
     print(f"[LOAD DATA]: {dataset}")
 
-    adj, features, labels, train, val, test = spk.datasets.citation.load_data(
-        dataset_name=dataset, normalize_features=True, random_split=True)
+    if (dataset == "cora" or dataset == 'citeseer' or dataset == 'pubmed'):
+        adj, features, labels, train, val, test = spk.datasets.citation.load_data(
+            dataset_name=dataset, normalize_features=True, random_split=True)
+    elif (dataset == 'ppi' or dataset == 'reddit'):
+        adj, features, labels, train, val, test = spk.datasets.graphsage.load_data(
+            dataset_name=dataset, max_degree=1, normalize_features=True)
+    else:
+        raise ValueError(
+            "Dataset not supported. List of supported datsets: ['cora', 'citeseer', 'pubmed', 'ppi', 'reddit']")
 
     # Converting one-hot encoding into categorical
     # values with the indexes of each dataset partition
@@ -25,7 +32,7 @@ def new_load_data(dataset='cora'):
         0], np.where(test)[0]
 
     # Normalizing our features and adjacency matrices
-    features = normalize_features(features)
+    # features = normalize_features(features)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
 
     adj = torch.FloatTensor(adj.todense())
