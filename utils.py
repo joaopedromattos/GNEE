@@ -38,7 +38,7 @@ def new_load_data(path="./pyGAT/data/cora/", dataset="cora"):
         return adj, features, labels, idx_train, idx_val, idx_test
 
 
-def load_data(path="./pyGAT/data/cora/", dataset="cora"):
+def original_load_data(path="./pyGAT/data/cora/", dataset="cora"):
     """Load citation network dataset (cora only for now)"""
     print('Test {} dataset...'.format(dataset))
 
