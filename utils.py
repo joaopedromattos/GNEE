@@ -2,6 +2,43 @@ import numpy as np
 import scipy.sparse as sp
 import torch
 import spektral as spk
+import pandas as pd
+import networkx as nx
+import os
+
+
+def cora_networkx(path=None):
+    if (path == None):
+        raise ValueError("Dataset path shouldn't be of type 'None'.")
+    else:
+        # Reading our graph, according to documentation
+        edgelist = pd.read_csv(os.path.join(
+            path, "cora.cites"), sep='\t', header=None, names=["target", "source"])
+        edgelist["label"] = "cites"
+
+        # Transforming it into a
+        Gnx = nx.from_pandas_edgelist(edgelist, edge_attr="label")
+        nx.set_node_attributes(Gnx, "paper", "label")
+        adj = nx.to_scipy_sparse_matrix(Gnx)
+
+        # Sparse feature matrix
+        feature_names = ["w_{}".format(ii) for ii in range(1433)]
+        column_names = feature_names + ["subject"]
+        node_data = pd.read_csv(os.path.join(
+            path, "cora.content"), sep='\t', header=None, names=column_names)
+        node_data.to_numpy()[:, :-1]
+        features = sp.csr_matrix(node_data.to_numpy()[
+                                 :, :-1], dtype=np.float32)
+
+        # Train / val / test spliting...
+        num_nodes = features.shape[0]
+        idxs = np.arange(0, num_nodes)
+        idx_train, idx_val, idx_test = np.split(
+            idxs, [int(.6*num_nodes), int(.8*num_nodes)])
+
+        labels = encode_onehot(node_data.to_numpy()[:, -1])
+
+        return adj, features, labels, idx_train, idx_val, idx_test
 
 
 def encode_onehot(labels):
@@ -13,24 +50,28 @@ def encode_onehot(labels):
     return labels_onehot
 
 
-def new_load_data(path="./pyGAT/data/cora/", dataset='cora'):
+def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
     print(f"[LOAD DATA]: {dataset}")
 
-    if (dataset == "cora" or dataset == 'citeseer' or dataset == 'pubmed'):
-        adj, features, labels, train, val, test = spk.datasets.citation.load_data(
-            dataset_name=dataset, normalize_features=True, random_split=True)
-    elif (dataset == 'ppi' or dataset == 'reddit'):
-        adj, features, labels, train, val, test = spk.datasets.graphsage.load_data(
-            dataset_name=dataset, max_degree=1, normalize_features=True)
+    if (not use_networkx):
+        if (dataset == "cora" or dataset == 'citeseer' or dataset == 'pubmed'):
+            adj, features, labels, train, val, test = spk.datasets.citation.load_data(
+                dataset_name=dataset, normalize_features=True, random_split=True)
+        elif (dataset == 'ppi' or dataset == 'reddit'):
+            adj, features, labels, train, val, test = spk.datasets.graphsage.load_data(
+                dataset_name=dataset, max_degree=1, normalize_features=True)
+        else:
+            raise ValueError(
+                "Dataset not supported. List of supported datsets: ['cora', 'citeseer', 'pubmed', 'ppi', 'reddit']")
+        print(f"ADJ {type(adj)}, \nFEATURES {type(features)}, \nLABELS {type(labels)}, \nTRAIN {type(train)}, \nVAL {type(val)}, \nTEST {type(test)}")
+
+        # Converting one-hot encoding into categorical
+        # values with the indexes of each dataset partition
+        idx_train, idx_val, idx_test = np.where(train)[0], np.where(val)[
+            0], np.where(test)[0]
     else:
-        raise ValueError(
-            "Dataset not supported. List of supported datsets: ['cora', 'citeseer', 'pubmed', 'ppi', 'reddit']")
-
-    # Converting one-hot encoding into categorical
-    # values with the indexes of each dataset partition
-    idx_train, idx_val, idx_test = np.where(train)[0], np.where(val)[
-        0], np.where(test)[0]
-
+        adj, features, labels, idx_train, idx_val, idx_test = cora_networkx(
+            path)
     # Normalizing our features and adjacency matrices
     # features = normalize_features(features)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
