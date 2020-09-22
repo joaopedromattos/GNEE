@@ -8,35 +8,83 @@ import os
 
 
 def cora_networkx(path=None):
+    """
+        Function that loads a graph using networkx. 
+
+        Currently, It only works with cora graph dataset and the variable G, 
+        created within the scope of this function IS NOT USED AT ANY MOMENT 
+        (yet). I may use this variable in a later opportunity, so 
+        I'll keep this implementation as it is now.
+
+        Parameters:
+            path -> A path to the cora dataset directory
+
+        Return:
+            adj -> Sparse and symmetric adjacency matrix of our graph.
+            features -> Sparse matrix with our graph features.
+            labels -> A NumPy array with the labels of all nodes.
+            idx_train -> A NumPy array with the indexes of the training nodes.
+            idx_val -> A NumPy array with the indexes of the validation nodes.
+            idx_test -> A NumPy array with the indexes of the test nodes.
+
+    """
     if (path == None):
         raise ValueError("Dataset path shouldn't be of type 'None'.")
     else:
         # Reading our graph, according to documentation
         edgelist = pd.read_csv(os.path.join(
             path, "cora.cites"), sep='\t', header=None, names=["target", "source"])
-        edgelist["label"] = "cites"
 
-        # Transforming it into a
-        Gnx = nx.from_pandas_edgelist(edgelist, edge_attr="label")
-        nx.set_node_attributes(Gnx, "paper", "label")
-        adj = nx.to_scipy_sparse_matrix(Gnx)
-
-        # Sparse feature matrix
+        # Reading and storing our feature dataframe
         feature_names = ["w_{}".format(ii) for ii in range(1433)]
         column_names = feature_names + ["subject"]
         node_data = pd.read_csv(os.path.join(
             path, "cora.content"), sep='\t', header=None, names=column_names)
-        node_data.to_numpy()[:, :-1]
-        features = sp.csr_matrix(node_data.to_numpy()[
-                                 :, :-1], dtype=np.float32)
 
-        # Train / val / test spliting...
-        num_nodes = features.shape[0]
+        # Converting our graph nodes into sequential values, in order to
+        # correctly index each of our feature vectors.
+        idx_map = {j: i for i, j in enumerate(node_data.index)}
+        edges = edgelist.to_numpy()
+        converted_edges = np.array(
+            list(map(idx_map.get, edges.flatten())), dtype=np.int32).reshape(edges.shape)
+
+        # In order to correctly instantiate our graph, we're going to
+        # convert our edges list into a sparse matrix, then transform it into
+        # a symmetric adj. matrix and, finally, instantiate our network in G.
+        adj = sp.coo_matrix((np.ones(converted_edges.shape[0]), (converted_edges[:, 0], converted_edges[:, 1])), shape=(
+            converted_edges.shape[0], converted_edges.shape[0]), dtype=np.float32)
+        adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+        G = nx.from_scipy_sparse_matrix(adj)
+
+        # Re-indexing our dataframe with our nodes in the correct order, using
+        # our idx_map dictionary, previously calculated...
+        node_data['new_index'] = node_data.index
+        node_data['new_index'] = node_data['new_index'].apply(
+            lambda x: idx_map[x])
+
+        # Encoding our labels with categorical values from 0 to 6
+        classes_dict = encode_onehot_dict(node_data['subject'].to_numpy())
+        node_data['subject'] = node_data['subject'].apply(
+            lambda x: classes_dict[x])
+
+        # Inserting all our calculated attributes inside our graph G
+        feature_dict = node_data.set_index('new_index').to_dict('index')
+        nx.set_node_attributes(G, feature_dict)
+
+        # Train, val, test spliting...
+        num_nodes = node_data.shape[0]
         idxs = np.arange(0, num_nodes)
         idx_train, idx_val, idx_test = np.split(
             idxs, [int(.6*num_nodes), int(.8*num_nodes)])
 
-        labels = encode_onehot(node_data.to_numpy()[:, -1])
+        # Adding our features to our nodes
+        feature_dict = node_data.set_index('new_index').to_dict('index')
+        nx.set_node_attributes(G, feature_dict)
+
+        # Creating our features sparse matrix and our labels numpy array
+        features_numpy = node_data.to_numpy()[:, :-1]
+        features = sp.csr_matrix(features_numpy, dtype=np.float32)
+        labels = features_numpy[:, -1]
 
         return adj, features, labels, idx_train, idx_val, idx_test
 
@@ -48,6 +96,12 @@ def encode_onehot(labels):
     labels_onehot = np.array(
         list(map(classes_dict.get, labels)), dtype=np.int32)
     return labels_onehot
+
+
+def encode_onehot_dict(labels):
+    classes = set(labels)
+    classes_dict = {c: i for i, c in enumerate(classes)}
+    return classes_dict
 
 
 def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
