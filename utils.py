@@ -132,7 +132,12 @@ def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
 
     adj = torch.FloatTensor(adj.todense())
     features = torch.FloatTensor(features.todense())
-    labels = torch.LongTensor(np.where(labels)[1])
+
+    # With networkx, we no longer need to convert from one-hot encoding...
+    if (not use_networkx):
+        labels = torch.LongTensor(np.where(labels)[1])
+    else:
+        labels = torch.LongTensor(labels)
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
