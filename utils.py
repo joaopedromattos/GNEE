@@ -52,7 +52,7 @@ def cora_networkx(path=None):
         # convert our edges list into a sparse matrix, then transform it into
         # a symmetric adj. matrix and, finally, instantiate our network in G.
         adj = sp.coo_matrix((np.ones(converted_edges.shape[0]), (converted_edges[:, 0], converted_edges[:, 1])), shape=(
-            converted_edges.shape[0], converted_edges.shape[0]), dtype=np.float32)
+            len(node_data), len(node_data)), dtype=np.float32)
         adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
         G = nx.from_scipy_sparse_matrix(adj)
 
