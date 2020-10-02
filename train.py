@@ -18,12 +18,7 @@ from models import GAT, SpGAT
 
 
 class GAT_wrapper():
-    """
-    A class that defines a wrapper around the implementation of GAT written
-    in PyTorch.
-    """
-
-    def __init__(self, args={"alpha": 0.2, "cuda": True, "dropout": 0.6, "epochs": 10000, "fastmode": False, "hidden": 8, "lr": 0.005, "nb_heads": 8, "no_cuda": False, "patience": 100, "seed": 72, "sparse": False, "weight_decay": 0.0005}):
+    def __init__(self, args):
         self.args = args
 
         self.model = None
@@ -39,10 +34,6 @@ class GAT_wrapper():
         self.idx_test = None
 
     def compute_test(self):
-        """
-        Computes the evaluation (test) pipeline of the original implementation 
-        of PyGAT.
-        """
         self.model.eval()
         output = self.model(self.features, self.adj)
         loss_test = F.nll_loss(
@@ -58,14 +49,6 @@ class GAT_wrapper():
         return loss_test, acc_test
 
     def train_pipeline(self):
-        """
-        Computes the training pipeline of PyGAT. This method also consumes
-        functions from 'utils.py', in order to load and preprocess the dataset.
-
-        Reach to 'utils.py' to better understand how the datasets are loaded
-        and preprocessed.
-        """
-
         random.seed(self.args.seed)
         np.random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
@@ -74,13 +57,6 @@ class GAT_wrapper():
 
         # Load data
         adj, features, labels, idx_train, idx_val, idx_test = new_load_data()
-
-        self.adj = adj
-        self.features = features
-        self.labels = labels
-        self.idx_train = idx_train
-        self.idx_val = idx_val
-        self.idx_test = idx_test
 
         # Model and optimizer
         if self.args.sparse:
@@ -112,6 +88,14 @@ class GAT_wrapper():
 
         features, adj, labels = Variable(
             features), Variable(adj), Variable(labels)
+
+        # TODO: Test if these lines could be written below line 41.
+        self.adj = adj
+        self.features = features
+        self.labels = labels
+        self.idx_train = idx_train
+        self.idx_val = idx_val
+        self.idx_test = idx_test
 
         def train(epoch):
             t = time.time()
