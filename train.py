@@ -214,8 +214,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-    print(type(args), args)
-
     gat = GAT_wrapper(args)
     gat.train_pipeline()
     gat.compute_test()
