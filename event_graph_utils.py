@@ -10,6 +10,7 @@ from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer, LabelEncod
 
 
 def mount_graph(df):
+    print("Creating graph...")
     np.set_printoptions(threshold=100)
     logging.basicConfig(format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO, handlers=[LoggingHandler()])
@@ -69,19 +70,12 @@ def mount_graph(df):
         # embedding
         G.nodes[node_id]['embedding'] = row['embedding']
 
-        print("node_id: \t", node_id)
-        print("node_date: \t", node_date)
-        print("node_themes_array: \t", node_themes_array)
-        print("node_locations_array: \t", node_locations_array)
-        print("node_persons_array: \t", node_persons_array)
-        print("node_organizations_array: \t", node_organizations_array)
-        print('----')
-
     # We'll relabel our nodes, since it's names are not convenient...
     mapping = {value: idx for idx, value in enumerate(G.nodes())}
     G = nx.relabel_nodes(G, mapping=mapping, copy=True)
 
-    print(f"Nodes: {len(G.nodes)}, edges: {len(G.edges)}")
+    print(
+        f"Graph loaded: OK - \t Nodes: {len(G.nodes)} \t  edges: {len(G.edges)}")
     return G
 
 
