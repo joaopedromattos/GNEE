@@ -144,8 +144,8 @@ def new_load_data(*args, path="./pyGAT/data/cora/", dataset='cora', custom_funct
     if (not custom_function):
         labels = np.where(labels)[1]
 
-    adj = torch.FloatTensor(adj.todense())
-    features = torch.FloatTensor(features.todense())
+    adj = torch.FloatTensor(adj)
+    features = torch.FloatTensor(features)
     labels = torch.LongTensor(labels)
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
