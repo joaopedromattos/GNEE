@@ -134,8 +134,11 @@ def new_load_data(*args, path="./pyGAT/data/cora/", dataset='cora', custom_funct
     # features = normalize_features(features)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
 
-    adj = torch.FloatTensor(adj.todense())
-    features = torch.FloatTensor(features.todense())
+    if (sp.issparse(adj)):
+        adj = torch.FloatTensor(adj.todense())
+
+    if (sp.issparse(features)):
+        features = torch.FloatTensor(features.todense())
 
     # With networkx, we no longer need to convert from one-hot encoding...
     if (not custom_function):
