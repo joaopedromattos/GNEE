@@ -129,7 +129,7 @@ def new_load_data(*args, path="./pyGAT/data/cora/", dataset='cora', custom_funct
                 path)
         else:
             adj, features, labels, idx_train, idx_val, idx_test = function(
-                **args)
+                *args)
     # Normalizing our features and adjacency matrices
     # features = normalize_features(features)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
