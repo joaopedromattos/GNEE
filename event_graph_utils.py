@@ -15,7 +15,7 @@ def mount_graph(df, path_to_language_model="../language_model"):
     logging.basicConfig(format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO, handlers=[LoggingHandler()])
 
-    language_model = SentenceTransformer('./language_model')
+    language_model = SentenceTransformer(path_to_language_model)
 
     df['embedding'] = list(language_model.encode(df['text'].to_list()))
     df = df.loc[~df['Themes'].isna()]
