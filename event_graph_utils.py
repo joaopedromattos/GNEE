@@ -9,7 +9,7 @@ import logging
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer, LabelEncoder
 
 
-def mount_graph(df):
+def mount_graph(df, path_to_language_model="../language_model"):
     print("Creating graph...")
     np.set_printoptions(threshold=100)
     logging.basicConfig(format='%(asctime)s - %(message)s',

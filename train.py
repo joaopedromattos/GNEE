@@ -17,8 +17,17 @@ from utils import new_load_data, accuracy
 from models import GAT, SpGAT
 
 
+class Namespace(object):
+    def __init__(self, adict):
+        self.__dict__.update(adict)
+
+
 class GAT_wrapper():
-    def __init__(self, args):
+    def __init__(self, args={"alpha": 0.2, "cuda": True, "dropout": 0.6, "epochs": 10, "fastmode": False, "hidden": 8, "lr": 0.005, "nb_heads": 8, "no_cuda": False, "patience": 100, "seed": 72, "sparse": False, "weight_decay": 0.0005}):
+
+        if (type(args) == dict):
+            args = Namespace(args)
+
         self.args = args
 
         self.model = None
@@ -48,7 +57,7 @@ class GAT_wrapper():
 
         return loss_test, acc_test
 
-    def train_pipeline(self):
+    def train_pipeline(self, *args, custom_function=True, function=None):
         random.seed(self.args.seed)
         np.random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
@@ -56,7 +65,8 @@ class GAT_wrapper():
             torch.cuda.manual_seed(self.args.seed)
 
         # Load data
-        adj, features, labels, idx_train, idx_val, idx_test = new_load_data()
+        adj, features, labels, idx_train, idx_val, idx_test = new_load_data(
+            args, custom_function=custom_function, function=function)
 
         # Model and optimizer
         if self.args.sparse:

@@ -104,10 +104,10 @@ def encode_onehot_dict(labels):
     return classes_dict
 
 
-def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
+def new_load_data(*args, path="./pyGAT/data/cora/", dataset='cora', custom_function=False, function=cora_networkx):
     print(f"[LOAD DATA]: {dataset}")
 
-    if (not use_networkx):
+    if (not custom_function):
         if (dataset == "cora" or dataset == 'citeseer' or dataset == 'pubmed'):
             adj, features, labels, train, val, test = spk.datasets.citation.load_data(
                 dataset_name=dataset, normalize_features=True, random_split=True)
@@ -124,8 +124,12 @@ def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
         idx_train, idx_val, idx_test = np.where(train)[0], np.where(val)[
             0], np.where(test)[0]
     else:
-        adj, features, labels, idx_train, idx_val, idx_test = cora_networkx(
-            path)
+        if (function == cora_networkx or function == None):
+            adj, features, labels, idx_train, idx_val, idx_test = cora_networkx(
+                path)
+        else:
+            adj, features, labels, idx_train, idx_val, idx_test = function(
+                **args)
     # Normalizing our features and adjacency matrices
     # features = normalize_features(features)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
@@ -134,10 +138,10 @@ def new_load_data(path="./pyGAT/data/cora/", dataset='cora', use_networkx=True):
     features = torch.FloatTensor(features.todense())
 
     # With networkx, we no longer need to convert from one-hot encoding...
-    if (not use_networkx):
-        labels = torch.LongTensor(np.where(labels)[1])
-    else:
-        labels = torch.LongTensor(labels)
+    if (not custom_function):
+        labels = np.where(labels)[1]
+
+    labels = torch.LongTensor(labels)
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
