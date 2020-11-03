@@ -66,7 +66,7 @@ class GAT_wrapper():
 
         # Load data
         adj, features, labels, idx_train, idx_val, idx_test = new_load_data(
-            args, custom_function=custom_function, function=function)
+            *args, custom_function=custom_function, function=function)
 
         # Model and optimizer
         if self.args.sparse:
