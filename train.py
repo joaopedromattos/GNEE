@@ -55,7 +55,7 @@ class GAT_wrapper():
         self.loss_test = loss_test
         self.acc_test = acc_test
 
-        return loss_test, acc_test, output[self.idx_test]
+        return loss_test, acc_test, output[self.idx_test].max(1)[1]
 
     def train_pipeline(self, *args, custom_function=True, function=None):
         random.seed(self.args.seed)
