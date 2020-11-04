@@ -7,6 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 import logging
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer, LabelEncoder
+from sklearn.model_selection import train_test_split
 
 
 def mount_graph(df, path_to_language_model="../language_model"):
@@ -131,7 +132,7 @@ def regularization(G, dim, embedding_feature: str = 'embedding', iterations=15, 
     return G
 
 
-def process_event_dataset_from_networkx(G, features_attr="f", label_attr="themes", multi_label=False, train_split=0.6, val_split=0.2):
+def process_event_dataset_from_networkx(G, features_attr="f", label_attr="themes", multi_label=False, train_split=0.6, val_split=0.2, random_state=42):
     """
     Builds an event graph dataset used in GAT model
 
@@ -140,6 +141,7 @@ def process_event_dataset_from_networkx(G, features_attr="f", label_attr="themes
         features_att -> Feature attribute of each node (str)
         label_att -> Label attribute of each node (str)
         multi_label -> A boolean flag that considers a multi label dataset
+        random_state -> A random seed to train_test_split
     Returns:
         adj -> Sparse and symmetric adjacency matrix of our graph.
         features -> A NumPy matrix with our graph features.
@@ -150,18 +152,18 @@ def process_event_dataset_from_networkx(G, features_attr="f", label_attr="themes
 
     """
 
-    def encode_onehot_dict(labels):
-        classes = set(labels)
-        classes_dict = {c: i for i, c in enumerate(classes)}
-        return classes_dict
-
     num_nodes = len(G.nodes)
     single_themes_dict = {}
 
     idxs = np.arange(0, num_nodes)
-    np.random.shuffle(idxs)
-    idx_train, idx_val, idx_test = np.split(
-        idxs, [int(train_split*num_nodes), int((val_split + train_split)*num_nodes)])
+
+    idx_train, idx_test_and_val = train_test_split(
+        idxs, train_size=train_split, test_size=(1 - train_split), random_state=random_state)
+
+    validation_split_percentage = val_split / (1 - train_split)
+
+    idx_val, idx_test = train_test_split(
+        idx_test_and_val, train_size=validation_split_percentage, random_state=random_state)
 
     # Organizing our feature matrix...
     # feature_matrix = np.array([ G.nodes[i]['embedding'] if 'embedding' in G.nodes[i].keys() else G.nodes[i][features_attr] for i in G.nodes()])
