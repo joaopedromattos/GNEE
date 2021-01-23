@@ -1,23 +1,12 @@
-# Pytorch Graph Attention Network
+# GNEE - GAT Neural Event Embeddings
 
-This is a pytorch implementation of the Graph Attention Network (GAT)
-model presented by Veličković et. al (2017, https://arxiv.org/abs/1710.10903).
+This repository contains the implementation of the model Neural Event Embeddings Graph Attention Network (GNEE).
 
-The repo has been forked initially from https://github.com/tkipf/pygcn. The official repository for the GAT (Tensorflow) is available in https://github.com/PetarV-/GAT. Therefore, if you make advantage of the pyGAT model in your research, please cite the following:
+Our model consists of a modified version of (GAT)
+model presented by Veličković et. al (2017, https://arxiv.org/abs/1710.10903) to the event embedding task.
 
-```
-@article{
-  velickovic2018graph,
-  title="{Graph Attention Networks}",
-  author={Veli{\v{c}}kovi{\'{c}}, Petar and Cucurull, Guillem and Casanova, Arantxa and Romero, Adriana and Li{\`{o}}, Pietro and Bengio, Yoshua},
-  journal={International Conference on Learning Representations},
-  year={2018},
-  url={https://openreview.net/forum?id=rJXMpikCZ},
-  note={accepted as poster},
-}
-```
+Here we use the PyTorch implementation of GAT, [pyGAT](https://github.com/Diego999/pyGAT), developed by [Diego999](https://github.com/Diego999).
 
-The branch **master** contains the implementation from the paper. The branch **similar_impl_tensorflow** the implementation from the official Tensorflow repository.
 
 # Performances
 
