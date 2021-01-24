@@ -121,5 +121,5 @@ if __name__ == "__main__":
 
         df_results = pd.DataFrame(experimental_results)
         df_results.to_csv(
-            f"./gat_results_{i}_news_cluster_5w1h_graph_hin.xls", index=False
+            f"./gat_results_{i}_news_cluster_5w1h_graph_hin.csv", index=False
         )
