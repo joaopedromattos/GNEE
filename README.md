@@ -2,11 +2,27 @@
 
 This repository contains the implementation of the model Neural Event Embeddings Graph Attention Network (GNEE).
 
-Our model consists of a modified version of (GAT)
-model presented by Veličković et. al (2017, https://arxiv.org/abs/1710.10903) to the event embedding task.
+Our method consists of a pre-processment procedure followed by modified version of GAT
+(Veličković et. al - 2017, https://arxiv.org/abs/1710.10903) to the event embedding task.
 
-Here we use the PyTorch implementation of GAT, [pyGAT](https://github.com/Diego999/pyGAT), developed by [Diego999](https://github.com/Diego999).
+In out work, we adopt and modify the PyTorch implementation of GAT, [pyGAT](https://github.com/Diego999/pyGAT), developed by [Diego999](https://github.com/Diego999).
 
+
+# File Structure
+```
+.
+├── datasets_runs/ -> Datasets used
+├── event_graph_utils.py -> Useful functions when working with event datasets
+├── layers.py -> Implementation of Graph Attention layers
+├── LICENSE
+├── main.py -> Execute this script to reproduce our experiments (refer to our paper for more details)
+├── models.py -> Implementation of the original GAT model
+├── notebooks -> Run these notebooks to reproduce all our experiments.
+├── README.md
+├── requirements.txt
+├── train.py -> Implementation of our preprocessing, traning and testing pipelines
+└── utils.py -> Useful functions used in GAT original implementation.
+```
 
 # Performances
 
@@ -24,4 +40,3 @@ pyGAT relies on Python 3.5 and PyTorch 0.4.1 (due to torch.sparse_coo_tensor).
 
 # Issues/Pull Requests/Feedbacks
 
-Don't hesitate to contact for any feedback or create issues/pull requests.
