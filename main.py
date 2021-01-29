@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
             loss, acc, output = gat.compute_test()
 
-            y_pred = output.numpy()
+            y_pred = output.cpu().numpy() if args.cuda else output.numpy()
             y_true = []
 
             for event_id in idx_test:

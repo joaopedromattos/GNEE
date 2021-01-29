@@ -7,6 +7,10 @@ Our method consists of a BERT text encoding and a pre-processment procedure foll
 
 In out work, we adopt and modify the PyTorch implementation of GAT, [pyGAT](https://github.com/Diego999/pyGAT), developed by [Diego999](https://github.com/Diego999).
 
+# Hardware requirements
+
+When running on "dense" mode (no ```--sparse``` flag), our model uses about 18 GB on GRAM. On the other hand, the sparse mode (using ```--sparse```) uses less than 1.5 GB on GRAM, which is an ideal setup to environments such as Google Colab.
+
 
 # File Structure
 ```
