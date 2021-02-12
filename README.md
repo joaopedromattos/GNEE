@@ -28,6 +28,23 @@ In our work, we adopt and modify the PyTorch implementation of GAT, [pyGAT](http
 └── utils.py -> Useful functions used in GAT original implementation.
 ```
 
+## Reproducibility Notebooks
+
+```
+./notebooks
+├── DeepWalk_Event_Embeddings.ipynb -> DeepWalk Benchmark
+├── GAT_Event_Embeddings_+_Without_Regularization.ipynb -> GAT w/o embeddings benchmark
+├── GCN_Event_Embeddings_.ipynb -> GCN Benchmark
+├── GNEE_Attention_Matrices_Example.ipynb -> GNEE Attention matrices visualization
+├── GNEE_Embedding_Visualization_t_SNE.ipynb -> GNEE Embeddings visualization using t-SNE
+├── GNEE.ipynb -> GNEE Benchmark
+├── Label_Propagation_Event_Classification.ipynb -> LP Benchmark
+├── LINE_Event_Embeddings.ipynb -> LINE Benchmark
+├── Node2Vec_Event_Embeddings.ipynb -> Node2Vec Benchmark
+├── SDNE_Event_Embeddings.ipynb -> SDNE Benchmark
+└── Struct2Vec_Event_Embeddings.ipynb -> Struct2Vec Benchmark
+```
+
 # Hardware requirements
 
 When running on "dense" mode (no ```--sparse``` flag), our model uses about 18 GB on GRAM. On the other hand, the sparse mode (using ```--sparse```) uses less than 1.5 GB on GRAM, which is an ideal setup to environments such as Google Colab.
