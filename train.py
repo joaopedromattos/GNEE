@@ -13,10 +13,15 @@ import torch.optim as optim
 from torch.autograd import Variable
 import scipy.sparse as sp
 
+from sklearn.manifold import TSNE
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 from utils import accuracy, normalize_adj
 from models import GAT, SpGAT
-
 
 
 class Namespace(object):
@@ -64,7 +69,8 @@ class GAT_wrapper:
     def compute_test(self):
         self.model.eval()
         output = self.model(self.features, self.adj)
-        loss_test = F.nll_loss(output[self.idx_test], self.labels[self.idx_test])
+        loss_test = F.nll_loss(
+            output[self.idx_test], self.labels[self.idx_test])
         acc_test = accuracy(output[self.idx_test], self.labels[self.idx_test])
         print(
             "Test set results:",
@@ -137,7 +143,8 @@ class GAT_wrapper:
             idx_val = idx_val.cuda()
             idx_test = idx_test.cuda()
 
-        features, adj, labels = Variable(features), Variable(adj), Variable(labels)
+        features, adj, labels = Variable(
+            features), Variable(adj), Variable(labels)
 
         # TODO: Test if these lines could be written below line 41.
         self.adj = adj
@@ -219,3 +226,33 @@ class GAT_wrapper:
 
         return model
 
+    def visualize_embeddings(self, G):
+
+        embedding = self.model.get_attention_heads_outputs(
+            self.features, self.adj).detach().numpy()
+
+        counter = 0
+        X = []
+        Y = []
+
+        for node in G.nodes():
+            if ':event' in node:
+                X.append(embedding[counter])
+                Y.append(G.nodes[node]['label'])
+
+            counter += 1
+
+        X = np.array(X)
+
+        X_embedded = TSNE(n_components=2).fit_transform(X)
+        X_embedded.shape
+
+        df = pd.DataFrame(X_embedded)
+        df['label'] = Y
+        df = df.dropna()
+
+        g = sns.scatterplot(x=0, y=1, data=df, hue="label", legend=False)
+        g.set(xlabel=None)
+        g.set(ylabel=None)
+
+        plt.savefig('../gnee.pdf')
